@@ -2,6 +2,8 @@
 import express from "express";
 import { Database } from "./db/dbConnection";
 import { Register } from "./api/register";
+import bcrypt from "bcrypt";
+import cors from "cors";
 
 class Server {
   private app;
@@ -11,10 +13,10 @@ class Server {
   constructor(port: any, config: any) {
     this.app = express();
     this.port = port;
+    this.register = new Register();
+    this.db = new Database(config);
     this.appMiddleWares();
     this.routeAPI();
-    this.db = new Database(config);
-    this.register = new Register();
   }
 
   start() {
@@ -25,19 +27,14 @@ class Server {
   }
 
   routeAPI() {
-    this.app.post("/register", (req, res) => {
-      try {
-        const { email, username, password } = req.body;
-        const check = this.register.createAccount(email, username, password);
-        res.send(check);
-      } catch (error) {
-        console.log(error);
-      }
+    this.app.post("/register", async (req, res) => {
+      this.register.createAccount(req, res);
     });
   }
 
   appMiddleWares() {
     this.app.use(express.json());
+    this.app.use(cors());
   }
 
   end() {
