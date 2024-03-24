@@ -4,7 +4,7 @@
   "description": "Backend for task manager project",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec ts-node src/index.ts",
+    "start": "nodemon --exec ts-node src/**",
     "build": "tsc"
   },
   "repository": {
