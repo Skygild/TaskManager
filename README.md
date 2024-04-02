@@ -1,2 +1,2 @@
 # TaskManager
-This is a full website task manager using React, Nextjs, Typescript, Nodejs, Express, MongoDB.
+This is a full webapp task manager using React, Nextjs, Typescript, Nodejs, Express, MongoDB.
