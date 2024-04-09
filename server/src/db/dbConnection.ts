@@ -1,7 +1,8 @@
-import mysql from "mysql2";
+import mysql, { PoolConnection } from "mysql2";
 
 export class Database {
   private pool;
+  private cn: PoolConnection | undefined;
   constructor(config: any) {
     this.pool = mysql.createPool(config);
   }
@@ -11,7 +12,6 @@ export class Database {
       try {
         if (err) {
           console.error("Error getting connection from pool:", err);
-          return;
         }
         if (connection) {
           console.log("Connected to database");
@@ -38,5 +38,26 @@ export class Database {
 
   getPool() {
     return this.pool;
+  }
+
+  getConnection() {
+    this.pool.getConnection(async (err, connection) => {
+      try {
+        if (err) {
+          console.error("Error getting connection from pool:", err);
+        }
+
+        if (connection) {
+          this.cn = connection;
+        }
+        // Perform database operations
+      } catch (error) {
+        console.log(error);
+      } finally {
+        // Release the connection back to the pool when done
+        connection.release();
+      }
+    });
+    return this.cn;
   }
 }
