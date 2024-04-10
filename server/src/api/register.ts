@@ -6,33 +6,25 @@ import { Request, Response } from "express";
 
 export class Register {
   private db: Database;
-  private pool: Pool;
+  private connection;
   constructor() {
     this.db = new Database(mysqlConfig);
-    this.pool = this.db.getPool();
+    this.connection = this.db.getConnection();
   }
 
   async createAccount(req: Request, res: Response) {
-    this.pool.getConnection(async (err, connection) => {
-      try {
+    try {
+      const { email, username, password }: any = req.body;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      (await this.connection).query("INSERT INTO users (email, username, password) VALUES (?, ?, ?)", [email, username, hashedPassword], (err, result) => {
         if (err) {
-          console.log(err);
-          return;
+          res.send(err);
         }
-        const { email, username, password }: any = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        connection.query("INSERT INTO users (email, username, password) VALUES (?, ?, ?)", [email, username, hashedPassword], (err, result) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
 
-          console.log(result);
-          return result;
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    });
+        res.send(result);
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
