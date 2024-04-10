@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import session from "express-session";
 import { v4 as uuid4 } from "uuid";
 import passport from "passport";
+import { Task } from "./api/task";
 dotenv.config();
 
 class Server {
@@ -18,12 +19,14 @@ class Server {
   private register;
   private signin;
   private passport;
+  private task;
   constructor(port: any, config: any) {
     this.app = express();
     this.port = port;
     this.passport = passport;
     this.register = new Register();
     this.signin = new SignIn();
+    this.task = new Task();
     this.db = new Database(config);
     this.appMiddleWares();
     this.routeAPI();
@@ -37,10 +40,12 @@ class Server {
   }
 
   routeAPI() {
+    //Register
     this.app.post("/register", async (req, res) => {
       await this.register.createAccount(req, res);
     });
 
+    //Sign in
     this.app.post("/signin", (req, res, next) => {
       passport.authenticate("local", (err: any, user: any) => {
         if (err) {
@@ -57,6 +62,9 @@ class Server {
         });
       })(req, res, next);
     });
+
+    //Create Task
+    this.app.post("/task", async (req, res) => await this.task.createTask(req, res));
   }
 
   appMiddleWares() {
